@@ -1,113 +1,257 @@
+
+/**
+ * SVGR Support
+ * Caveat: No React Props Type.
+ *
+ * You can override the next-env if the type is important to you
+ * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
+ 
+import Logo from '~/svg/Logo.svg';
+
+ */
+
+"use client";
+
+import { SetStateAction, useState } from "react";
+import { CiSearch } from "react-icons/ci";
 import Image from "next/image";
+import { FetchProvider,useFetchContext } from "./hooks/FetchContext";
+import { ApiResponse } from "./hooks/useFetchHook";
 
-export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+export function Home() {
+ 
+  const [selectedProducts, setSelectedProducts] = useState<number[]>([]);
+  const [sortColumn, setSortColumn] = useState<string | null>(null);
+  const [sortOrder, setSortOrder] = useState<string>("asc");
+  const [selectAll, setSelectAll] = useState<boolean>(false);  
+  const [searchTerm, setSearchTerm] = useState<string>('')
+    const { data, loading, error } = useFetchContext();
+
+    if (error) {
+      alert(error)
+    }
+
+
+  /* const sortedProducts = data && [...data].sort((a, b) => {
+    if (sortColumn) {
+      if (sortOrder === "asc") {
+        return a[sortColumn] < b[sortColumn] ? -1 : 1;
+      } else {
+        return a[sortColumn] > b[sortColumn] ? -1 : 1;
+      }
+    } else {
+      return 0;
+    }
+  }); */
+
+  const handleSelectAll = (e: { target: { checked: boolean | ((prevState: boolean) => boolean); }; }) => {
+    setSelectAll(e.target.checked);
+    setSelectedProducts(
+      e.target.checked && data ? data.map((product) => product.SKU) : [],
+    );
+  };
+
+  const handleSort = (column: SetStateAction<string | null>) => {
+    if (sortColumn === column) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortColumn(column);
+      setSortOrder("asc");
+    }
+  };
+
+  const handleSelectProduct = (productId: number) => {
+    if (selectedProducts.includes(productId)) {
+      setSelectedProducts(selectedProducts.filter((id) => id !== productId));
+    } else {
+      setSelectedProducts([...selectedProducts, productId]);
+    }
+  };
+
+  const isSelected = (productId: number) => selectedProducts.includes(productId);
+
+  const sortSvg = (column: string | null) =>
+    sortColumn === column ? (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        width="24"
+        height="24"
+      >
+        {sortOrder === "asc" ? (
+          <path d="M7 10l5 5 5-5z" />
+        ) : (
+          <path d="M7 14l5-5 5 5z" />
+        )}
+
+        <path d="M0 0h24v24H0z" fill="none" />
+      </svg>
+    ) : null;
+
+    if (loading) return (
+      <div className="min-h-screen w-screen flex align-middle justify-center">
+        <p className="font-bold">Loading...</p>
         </div>
+    )
+
+  return (
+    <div className="bg-white pt-[17px]  font-raleway">
+      <div className="flex align-middle justify-between h-[89px] px-[20px] bg-white">
+        <Image 
+        src={'/Group1000004245.svg'} className='w-[206px] h-[56px]' 
+        width={206} height={56} alt={""} />
+        <div
+        className="w-[264px] h-[42px] border-gray-300 rounded absolute top-[20px] left-[320px]" 
+        >
+        <input type="text" className="pl-10 pr-4 py-2 border rounded-lg" 
+          placeholder="Search by name" onChange={(e) => setSearchTerm(e.target.value)} /> 
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center  pointer-events-none"> 
+           <CiSearch />
+        </div>  
+        </div>
+        <Image src={'/div.svg'} width={155} height={34}
+        className='w-[155px] h-[34px]' 
+        alt={""} />
       </div>
-
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
+      <div className="pt-[33px] px-[53px] bg-gray-100 w-auto ">
+        <div className="flex flex-row justify-between items-center mb-4 bottom-[30px]">
+          <h2 className="text-xl font-medium size-[18px] w-auto">Products Table</h2>
+        </div>
+        
+        <table className="w-full border-collapse font-normal size-3 bg-white gap-6">
+          <thead className="bg-blue-50 py-5">
+            <tr className="border-b border-gray-300">
+              <th className="px-4 py-2 text-left w-3">
+                <input
+                  className="accent-purple-600"
+                  type="checkbox"
+                  checked={selectAll}
+                  onChange={handleSelectAll}
+                />
+              </th>
+              <th>
+                <div className="flex flex-row justify-center items-center">
+                  <p>S/N</p>
+                </div>
+              </th>
+              <th>
+                <div className="flex flex-row justify-center items-center">
+                  <p>Image</p>
+                </div>
+              </th>
+              <th>
+                <div className="flex flex-row justify-center items-center">
+                  <p>SKU</p>
+                </div>
+              </th>
+              <th onClick={() => handleSort("Name")}>
+                <div className="flex flex-row justify-center items-center">
+                  <p>Name</p>
+                  {sortSvg("Name")}
+                </div>
+              </th>
+              <th onClick={() => handleSort("Title")}>
+                <div className="flex flex-row justify-center items-center">
+                  <p>Title</p>
+                  {sortSvg("Title")}
+                </div>
+              </th>
+              <th onClick={() => handleSort("Description")}>
+                <div className="flex flex-row justify-center items-center">
+                  <p>Description</p>
+                  {sortSvg("Description")}
+                </div>
+              </th>
+              <th onClick={() => handleSort("Brand")}>
+                <div className="flex flex-row justify-center items-center">
+                  <p>Brand</p>
+                  {sortSvg("Brand")}
+                </div>
+              </th>
+              <th onClick={() => handleSort("Cost Price")}>
+                <div className="flex flex-row justify-center items-center">
+                  <p>Cost Price</p>
+                  {sortSvg("Cost Price")}
+                </div>
+              </th>
+              <th onClick={() => handleSort("Quantity")}>
+                <div className="flex flex-row justify-center items-center">
+                  <p>Quantity</p>
+                  {sortSvg("Quantity")}
+                </div>
+              </th>
+              <th onClick={() => handleSort("size")}>
+                <div className="flex flex-row justify-center items-center">
+                  <p>Size</p>
+                  {sortSvg("size")}
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {data && data.filter((d: ApiResponse)=> d.Name.toLowerCase().includes(searchTerm)).map((product, index) => (
+              <tr
+                key={index}
+                className={`${
+                  isSelected(index) ? "bg-gray-100" : ""
+                } border-b border-gray-200`}
+              >
+                <td className="px-4 py-3">
+                  <input
+                    type="checkbox"
+                    onChange={() => handleSelectProduct(index)}
+                    checked={isSelected(index)}
+                    className="text-purple-600 bg-gray-100 border-gray-300 focus:ring-purple-600 accent-purple-600"
+                  />
+                </td>
+                <td className="px-4 py-3 text-gray-600 text-center">
+                  {index + 1}
+                </td>
+                <td className="px-4 py-3 text-gray-600 text-center">
+                  <Image className="w-[60px] h-[60px]" width={60} height={60} src={product.Image_1} alt="avatar" />
+                </td>
+                <td className="px-4 py-3 text-gray-600 text-center">
+                  {product.SKU} 
+                </td>
+                <td className="px-4 py-3 text-gray-600 text-center">
+                  {product.Name}
+                </td>
+                <td className="px-4 py-3 text-gray-600 text-center">
+                  {product.Title}
+                </td>
+                <td className="px-4 py-3 text-gray-600 text-center">
+                  {product.Description}
+                </td>
+                <td className="px-4 py-3 text-gray-600 text-center">
+                  {product.Brand}
+                </td>
+                <td className="px-4 py-3 text-gray-600 text-center">
+                  {product['Cost Price']}
+                </td>
+                <td className="px-4 py-3 text-gray-600 text-center">
+                  {product.Quantity}
+                </td>
+                <td className="px-4 py-3 text-gray-600 text-center">
+                  {product.size}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    </div>
   );
 }
+
+
+const App: React.FC = () => {
+  const url = 'http://3.88.1.181:8000/products/public/catalog?supplier=FragranceX';
+
+  return (
+    <FetchProvider url={url}>
+      <Home />
+    </FetchProvider>
+  );
+};
+
+export default App;
