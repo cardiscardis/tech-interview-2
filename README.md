@@ -34,3 +34,19 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+
+useFetch.ts:
+
+Defines the useFetch custom hook that handles fetching data from the specified api url and returns the state (data, loading, error).
+
+FetchContext.tsx:
+
+Defines the FetchContext and FetchProvider.
+The FetchProvider uses the useFetch hook and provides the fetched data through the context API.
+
+App.tsx:
+
+Uses the FetchProvider to wrap the DataDisplay component, passing the URL as a prop. The DataDisplay component uses the useFetchContext hook to access the fetched data.
+
+By separating the custom hook from the context, a modular codebase where the data-fetching logic can be reused independently of the context implementation is maintained.
