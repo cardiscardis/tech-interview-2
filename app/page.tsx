@@ -1,15 +1,3 @@
-
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- 
-import Logo from '~/svg/Logo.svg';
-
- */
-
 "use client";
 
 import { SetStateAction, useState } from "react";
@@ -18,7 +6,7 @@ import Image from "next/image";
 import { FetchProvider,useFetchContext } from "./hooks/FetchContext";
 import { ApiResponse } from "./hooks/useFetchHook";
 
-export function Home() {
+function Home() {
  
   const [selectedProducts, setSelectedProducts] = useState<number[]>([]);
   const [sortColumn, setSortColumn] = useState<string | null>(null);
@@ -244,7 +232,7 @@ export function Home() {
 }
 
 
-const App: React.FC = () => {
+const App = () => {
   const url = 'http://3.88.1.181:8000/products/public/catalog?supplier=FragranceX';
 
   return (
