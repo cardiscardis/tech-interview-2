@@ -8,6 +8,7 @@ interface FetchContextType {
   error: string | null;
 }
 
+
 const FetchContext = createContext<FetchContextType | undefined>(undefined);
 
 interface FetchProviderProps {

@@ -214,7 +214,7 @@ function Home() {
                   {product.Brand}
                 </td>
                 <td className="px-4 py-3 text-gray-600 text-center">
-                  {product['Cost Price']}
+                  {product['Cost Price'] as any}
                 </td>
                 <td className="px-4 py-3 text-gray-600 text-center">
                   {product.Quantity}

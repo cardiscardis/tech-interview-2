@@ -12,6 +12,7 @@ Title: string
 catalog_time: string;
 size: string;
 supplier: string;
+[key: string]: string | number;
 }
 
 const useFetch = (url: string) => {
